@@ -1,4 +1,4 @@
-package minimarketo
+package marketo
 
 import (
 	"bytes"
@@ -173,9 +173,9 @@ func NewClient(config ClientConfig) (Client, error) {
 // This is purely for testing purpose and not intended to be used.
 func (c *client) RefreshToken() (auth AuthToken, err error) {
 	if c.debug {
-		log.Printf("[minimarketo/RefreshToken] start")
+		log.Printf("[marketo/RefreshToken] start")
 		defer func() {
-			log.Print("[minimarketo/RefreshToken] DONE")
+			log.Print("[marketo/RefreshToken] DONE")
 		}()
 	}
 	// Make request for token
@@ -196,7 +196,7 @@ func (c *client) RefreshToken() (auth AuthToken, err error) {
 		return auth, err
 	}
 	if c.debug {
-		log.Printf("[minimarketo/RefreshToken] New token: %v", auth)
+		log.Printf("[marketo/RefreshToken] New token: %v", auth)
 	}
 	c.authLock.Lock()
 	defer c.authLock.Unlock()
@@ -209,9 +209,9 @@ func (c *client) RefreshToken() (auth AuthToken, err error) {
 func (c *client) do(req *http.Request) (response *Response, err error) {
 	var body []byte
 	if c.debug {
-		log.Printf("[minimarketo/do] URL: %s", req.URL)
+		log.Printf("[marketo/do] URL: %s", req.URL)
 		defer func() {
-			log.Printf("[minimarketo/do] DONE: body %s", string(body))
+			log.Printf("[marketo/do] DONE: body %s", string(body))
 		}()
 	}
 	resp, err := c.restClient.Do(req)
@@ -242,7 +242,7 @@ func (c *client) doWithRetry(req *http.Request) (response *Response, err error) 
 	// check if token has been expired or not
 	if c.tokenExpiresAt.Before(time.Now()) {
 		if c.debug {
-			log.Printf("[minimarketo/doWithRetry] token expired at: %s", c.tokenExpiresAt.String())
+			log.Printf("[marketo/doWithRetry] token expired at: %s", c.tokenExpiresAt.String())
 		}
 		c.RefreshToken()
 	}
@@ -268,7 +268,7 @@ func (c *client) checkToken(response *Response) (retry bool, err error) {
 	if len(response.Errors) > 0 && (response.Errors[0].Code == "601" || response.Errors[0].Code == "602") {
 		retry = true
 		if c.debug {
-			log.Printf("[minimarketo/checkToken] Expired/invalid token: %s", response.Errors[0].Code)
+			log.Printf("[marketo/checkToken] Expired/invalid token: %s", response.Errors[0].Code)
 		}
 		_, err = c.RefreshToken()
 	}
@@ -278,9 +278,9 @@ func (c *client) checkToken(response *Response) (retry bool, err error) {
 // Send HTTP GET to resource url
 func (c *client) Get(resource string) (response *Response, err error) {
 	if c.debug {
-		log.Printf("[minimarketo/Get] %s", resource)
+		log.Printf("[marketo/Get] %s", resource)
 		defer func() {
-			log.Print("[minimarketo/Get] DONE")
+			log.Print("[marketo/Get] DONE")
 		}()
 	}
 	req, err := http.NewRequest("GET", c.endpoint+resource, nil)
@@ -293,9 +293,9 @@ func (c *client) Get(resource string) (response *Response, err error) {
 // Send HTTP POST to resource url with given data
 func (c *client) Post(resource string, data []byte) (response *Response, err error) {
 	if c.debug {
-		log.Printf("[minimarketo/Post] %s, %s", resource, string(data))
+		log.Printf("[marketo/Post] %s, %s", resource, string(data))
 		defer func() {
-			log.Print("[minimarketo/Post] DONE")
+			log.Print("[marketo/Post] DONE")
 		}()
 	}
 	req, err := http.NewRequest("POST", c.endpoint+resource, bytes.NewBuffer(data))
@@ -310,9 +310,9 @@ func (c *client) Post(resource string, data []byte) (response *Response, err err
 // Send HTTP DELETE to resource url with given data
 func (c *client) Delete(resource string, data []byte) (response *Response, err error) {
 	if c.debug {
-		log.Printf("[minimarketo/Delete] %s, %s", resource, string(data))
+		log.Printf("[marketo/Delete] %s, %s", resource, string(data))
 		defer func() {
-			log.Print("[minimarketo/Delete] DONE")
+			log.Print("[marketo/Delete] DONE")
 		}()
 	}
 	req, err := http.NewRequest("DELETE", c.endpoint+resource, bytes.NewBuffer(data))

@@ -1,26 +1,19 @@
-# MiniMarketo
+# go-marketo
 
-[![GoDoc](https://godoc.org/github.com/SpeakData/minimarketo?status.svg)](https://godoc.org/github.com/SpeakData/minimarketo)
-[![MIT licensed](https://img.shields.io/badge/license-MIT-blue.svg)](https://raw.githubusercontent.com/SpeakData/minimarketo/master/LICENSE)
+[![GoDoc](https://godoc.org/github.com/polytomic/go-marketo?status.svg)](https://godoc.org/github.com/polytomic/go-marketo)
+[![MIT licensed](https://img.shields.io/badge/license-MIT-blue.svg)](https://raw.githubusercontent.com/polytomic/go-marketo/master/LICENSE)
 
-Inspired by the [FrenchBen/goketo](https://github.com/FrenchBen/goketo), we created MiniMarketo which is a very tiny client for Marketo REST API.
+Inspired by [FrenchBen/goketo](https://github.com/FrenchBen/goketo)
+and derived from
+[SpeakData/minimarketo](https://github.com/SpeakData/goketo),
+**go-marketo** provides a thin wrapper around Marketo's REST APIs,
+along with some utility structs for handling responses.
 
-It is very different from goketo as it doesn't do much.
-
-What MiniMarketo does is only one thing:
-
-- No explicit calls to authenticate. MiniMarketo takes care of that. This means you can call REST endpoints without getting an auth token or re-authenticating when the token expires.
-
-Other than that, MiniMarketo acts very much like a http client. So all you have to do is:
-- use MiniMarketo client to call a URL along with data if needed
-- define JSON struct and parse result
-
-MiniMarketo, instead of covering all the Marketo REST API calls, acts as a thin wrapper for Marketo REST API. Currently it only supports JSON API. Most "bulk" endpoints are not supported as it requires sending and downloading files.
 
 ## Installation
 
 ```bash
-go get github.com/SpeakData/minimarketo
+go get github.com/polytomic/go-marketo
 ```
 
 ## Usage
@@ -33,13 +26,13 @@ Basic operations are:
 First, create a client.
 In this example, I'm passing configuration through environment variables.
 ```go
-config := minimarketo.ClientConfig{
+config := marketo.ClientConfig{
     ID:       os.Getenv("MARKETO_ID"),
     Secret:   os.Getenv("MARKETO_SECRET"),
     Endpoint: os.Getenv("MARKETO_URL"), // https://XXX-XXX-XXX.mktorest.com
     Debug:    true,
 }
-client, err := minimarketo.NewClient(config)
+client, err := marketo.NewClient(config)
 if err != nil {
     log.Fatal(err)
 }
@@ -62,7 +55,7 @@ if err != nil {
 if !response.Success {
     log.Fatal(response.Errors)
 }
-var leads []minimarketo.LeadResult
+var leads []marketo.LeadResult
 if err = json.Unmarshal(response.Result, &leads); err != nil {
     log.Fatal(err)
 }
@@ -100,7 +93,7 @@ if err != nil {
 if !response.Success {
     log.Fatal(response.Errors)
 }
-var createResults []minimarketo.RecordResult
+var createResults []marketo.RecordResult
 if err = json.Unmarshal(response.Result, &createResults); err != nil {
     log.Fatal(err)
 }
@@ -111,7 +104,7 @@ for _, result := range createResults {
 
 ## JSON Response
 
-MiniMarketo defines the common Marketo response format.
+go-marketo defines the common Marketo response format.
 This covers most of the API responses.
 
 ```go
@@ -134,7 +127,7 @@ type Response struct {
 
 Your job is to parse "Result".
 
-As for convenience, MiniMarketo defines two commonly used "result" format.
+As for convenience, go-marketo defines two commonly used "result" format.
 
 ```go
 // Find lead returns "result" in this format

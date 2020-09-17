@@ -1,4 +1,4 @@
-package minimarketo
+package marketo
 
 import (
 	"encoding/json"

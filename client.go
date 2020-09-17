@@ -18,16 +18,6 @@ const (
 	identityPath   = "/oauth/token"
 )
 
-// LeadResult default result struct
-type LeadResult struct {
-	ID        int    `json:"id"`
-	FirstName string `json:"firstName"`
-	LastName  string `json:"lastName"`
-	Email     string `json:"email"`
-	Created   string `json:"createdAt"`
-	Updated   string `json:"updatedAt"`
-}
-
 // RecordResult holds Marketo record-level result
 type RecordResult struct {
 	ID      int    `json:"id"`

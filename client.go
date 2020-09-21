@@ -7,6 +7,7 @@ import (
 	"io/ioutil"
 	"log"
 	"net/http"
+	"strings"
 	"sync"
 	"time"
 )
@@ -53,19 +54,8 @@ type AuthToken struct {
 	Scope       string `json:"scope"`
 }
 
-// Client Marketo http client
-type Client interface {
-	GetTokenInfo() TokenInfo
-	RefreshToken() (AuthToken, error)
-	Get(string) (*Response, error)
-	Post(string, []byte) (*Response, error)
-	Delete(string, []byte) (*Response, error)
-	do(*http.Request) (*Response, error)
-	doWithRetry(*http.Request) (*Response, error)
-	checkToken(*Response) (bool, error)
-}
-
-type client struct {
+// Client Marketo http Client
+type Client struct {
 	authClient       *http.Client
 	restClient       *http.Client
 	restRoundTripper *restRoundTripper
@@ -125,7 +115,7 @@ type ClientConfig struct {
 }
 
 // NewClient returns a new Marketo Client
-func NewClient(config ClientConfig) (Client, error) {
+func NewClient(config ClientConfig) (*Client, error) {
 	// create two roundtrippers
 	aRT := authRoundTripper{
 		clientID:     config.ID,
@@ -138,7 +128,7 @@ func NewClient(config ClientConfig) (Client, error) {
 		timeout = DefaultTimeout
 	}
 	// Add credentials to the request
-	c := &client{
+	c := &Client{
 		authClient: &http.Client{
 			Timeout:   time.Second * time.Duration(timeout),
 			Transport: &aRT,
@@ -161,7 +151,7 @@ func NewClient(config ClientConfig) (Client, error) {
 
 // RefreshToken refreshes the auth token.
 // This is purely for testing purpose and not intended to be used.
-func (c *client) RefreshToken() (auth AuthToken, err error) {
+func (c *Client) RefreshToken() (auth AuthToken, err error) {
 	if c.debug {
 		log.Printf("[marketo/RefreshToken] start")
 		defer func() {
@@ -196,7 +186,11 @@ func (c *client) RefreshToken() (auth AuthToken, err error) {
 	return auth, nil
 }
 
-func (c *client) do(req *http.Request) (response *Response, err error) {
+func (c *Client) url(paths ...string) string {
+	return fmt.Sprintf("%s/%s", c.endpoint, strings.Join(paths, "/"))
+}
+
+func (c *Client) do(req *http.Request) (response *Response, err error) {
 	var body []byte
 	if c.debug {
 		log.Printf("[marketo/do] URL: %s", req.URL)
@@ -228,7 +222,7 @@ func (c *client) do(req *http.Request) (response *Response, err error) {
 	return response, nil
 }
 
-func (c *client) doWithRetry(req *http.Request) (response *Response, err error) {
+func (c *Client) doWithRetry(req *http.Request) (response *Response, err error) {
 	// check if token has been expired or not
 	if c.tokenExpiresAt.Before(time.Now()) {
 		if c.debug {
@@ -254,7 +248,33 @@ func (c *client) doWithRetry(req *http.Request) (response *Response, err error) 
 	return response, err
 }
 
-func (c *client) checkToken(response *Response) (retry bool, err error) {
+func (c *Client) doRequest(req *http.Request) (response *http.Response, err error) {
+	// check if token has been expired or not
+	if c.tokenExpiresAt.Before(time.Now()) {
+		if c.debug {
+			log.Printf("[marketo/doWithRetry] token expired at: %s", c.tokenExpiresAt.String())
+		}
+		c.RefreshToken()
+	}
+
+	response, err = c.restClient.Do(req)
+	if err != nil {
+		return nil, err
+	}
+
+	// check just in case we received 601 or 602
+	// retry, err := c.checkToken(response)
+	// if err != nil {
+	// 	return nil, err
+	// }
+	// if retry {
+	// 	response, err = c.do(req)
+	// }
+
+	return response, err
+}
+
+func (c *Client) checkToken(response *Response) (retry bool, err error) {
 	if len(response.Errors) > 0 && (response.Errors[0].Code == "601" || response.Errors[0].Code == "602") {
 		retry = true
 		if c.debug {
@@ -266,7 +286,7 @@ func (c *client) checkToken(response *Response) (retry bool, err error) {
 }
 
 // Send HTTP GET to resource url
-func (c *client) Get(resource string) (response *Response, err error) {
+func (c *Client) Get(resource string) (response *Response, err error) {
 	if c.debug {
 		log.Printf("[marketo/Get] %s", resource)
 		defer func() {
@@ -281,7 +301,7 @@ func (c *client) Get(resource string) (response *Response, err error) {
 }
 
 // Send HTTP POST to resource url with given data
-func (c *client) Post(resource string, data []byte) (response *Response, err error) {
+func (c *Client) Post(resource string, data []byte) (response *Response, err error) {
 	if c.debug {
 		log.Printf("[marketo/Post] %s, %s", resource, string(data))
 		defer func() {
@@ -298,7 +318,7 @@ func (c *client) Post(resource string, data []byte) (response *Response, err err
 }
 
 // Send HTTP DELETE to resource url with given data
-func (c *client) Delete(resource string, data []byte) (response *Response, err error) {
+func (c *Client) Delete(resource string, data []byte) (response *Response, err error) {
 	if c.debug {
 		log.Printf("[marketo/Delete] %s, %s", resource, string(data))
 		defer func() {
@@ -323,6 +343,6 @@ type TokenInfo struct {
 }
 
 // GetTokenInfo returns current TokenInfo stored in Client
-func (c *client) GetTokenInfo() TokenInfo {
+func (c *Client) GetTokenInfo() TokenInfo {
 	return TokenInfo{c.auth.AccessToken, c.tokenExpiresAt}
 }

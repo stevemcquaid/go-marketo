@@ -65,7 +65,7 @@ func NewImportAPI(c *Client) *ImportAPI {
 
 // Create uploads a new file for importing, returning the new
 // asynchronous import
-func (i *ImportAPI) Create(ctx context.Context, name string, file io.Reader) (*LeadImportResponse, error) {
+func (i *ImportAPI) Create(ctx context.Context, file io.Reader) (*LeadImportResponse, error) {
 	buffer := &strings.Builder{}
 	mpWriter := multipart.NewWriter(buffer)
 	h := make(textproto.MIMEHeader)

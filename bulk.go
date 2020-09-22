@@ -3,6 +3,7 @@ package marketo
 import (
 	"bytes"
 	"context"
+	"encoding/csv"
 	"encoding/json"
 	"fmt"
 	"io"
@@ -13,16 +14,6 @@ import (
 	"strings"
 )
 
-type Error struct {
-	Message    string
-	StatusCode int
-	Body       string
-}
-
-func (e Error) Error() string {
-	return e.Message
-}
-
 // BatchStatus describes the possible states for an import batch
 type BatchStatus string
 
@@ -31,6 +22,12 @@ const (
 	BatchQueued    = "Queued"
 	BatchImporting = "Importing"
 	BatchFailed    = "Failed"
+)
+
+const (
+	createLeadImport      = "create lead import"
+	getLeadImport         = "get lead import"
+	getLeadImportFailures = "get lead import failures"
 )
 
 // BatchResult contains the details of a batch, returned by the Create
@@ -94,12 +91,7 @@ func (i *ImportAPI) Create(ctx context.Context, file io.Reader) (*LeadImportResp
 	}
 	defer resp.Body.Close()
 	if resp.StatusCode != http.StatusOK {
-		body, _ := ioutil.ReadAll(resp.Body)
-		return nil, Error{
-			Message:    "error creating import",
-			Body:       string(body),
-			StatusCode: resp.StatusCode,
-		}
+		return nil, handleError(createLeadImport, resp)
 	}
 
 	body, err := ioutil.ReadAll(resp.Body)
@@ -131,12 +123,7 @@ func (i *ImportAPI) Get(ctx context.Context, id int) (*LeadImportResponse, error
 	}
 	defer resp.Body.Close()
 	if resp.StatusCode != http.StatusOK {
-		body, _ := ioutil.ReadAll(resp.Body)
-		return nil, Error{
-			Message:    "error creating import",
-			Body:       string(body),
-			StatusCode: resp.StatusCode,
-		}
+		return nil, handleError(getLeadImport, resp)
 	}
 
 	result := &LeadImportResponse{}
@@ -147,4 +134,51 @@ func (i *ImportAPI) Get(ctx context.Context, id int) (*LeadImportResponse, error
 	}
 
 	return result, nil
+}
+
+// LeadImportFailure contains a single lead record failure, along with
+// the reason for failure.
+type LeadImportFailure struct {
+	Reason string
+	Fields map[string]interface{}
+}
+
+// Failures returns the list of failed recrods for an import
+func (i *ImportAPI) Failures(ctx context.Context, id int) ([]LeadImportFailure, error) {
+	request, err := http.NewRequest(
+		http.MethodGet, i.url("bulk", "v1", "leads", "batch", fmt.Sprintf("%d", id), "failures.json"), nil,
+	)
+	if err != nil {
+		return nil, err
+	}
+
+	resp, err := i.Client.doRequest(request)
+	if err != nil {
+		return nil, err
+	}
+	defer resp.Body.Close()
+	if resp.StatusCode != http.StatusOK {
+		return nil, handleError(getLeadImportFailures, resp)
+	}
+
+	reader := csv.NewReader(resp.Body)
+	header, err := reader.Read()
+	if err != nil {
+		return nil, err
+	}
+
+	failures := []LeadImportFailure{}
+	record, err := reader.Read()
+	for err == nil {
+		failure := LeadImportFailure{
+			Reason: record[len(header)-1],
+			Fields: map[string]interface{}{},
+		}
+		for i := 0; i < len(header)-1; i++ {
+			failure.Fields[header[i]] = record[i]
+		}
+		failures = append(failures, failure)
+		record, err = reader.Read()
+	}
+	return failures, nil
 }

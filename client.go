@@ -112,6 +112,9 @@ type ClientConfig struct {
 	Timeout uint
 	// Debug, optional: a flag to show logging output
 	Debug bool
+	// RESTTransport,optional: the HTTP RoundTripper to use when
+	// making calls to the REST API.
+	RESTTransport http.RoundTripper
 }
 
 // NewClient returns a new Marketo Client
@@ -121,7 +124,9 @@ func NewClient(config ClientConfig) (*Client, error) {
 		clientID:     config.ID,
 		clientSecret: config.Secret,
 	}
-	rRT := restRoundTripper{}
+	rRT := restRoundTripper{
+		delegate: config.RESTTransport,
+	}
 
 	timeout := config.Timeout
 	if timeout == 0 {

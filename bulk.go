@@ -157,6 +157,10 @@ func (i *ImportAPI) Failures(ctx context.Context, id int) ([]LeadImportFailure, 
 		return nil, err
 	}
 	defer resp.Body.Close()
+	if resp.StatusCode == http.StatusNotFound {
+		// no errors
+		return nil, nil
+	}
 	if resp.StatusCode != http.StatusOK {
 		return nil, handleError(getLeadImportFailures, resp)
 	}

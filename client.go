@@ -169,7 +169,7 @@ func (c *Client) RefreshToken() (auth AuthToken, err error) {
 		if err != nil {
 			return auth, err
 		}
-		return auth, fmt.Errorf("Authentication error: %d %s", resp.StatusCode, body)
+		return auth, fmt.Errorf("authentication error: %d %s", resp.StatusCode, body)
 	}
 
 	if err := json.NewDecoder(resp.Body).Decode(&auth); err != nil {
@@ -261,15 +261,6 @@ func (c *Client) doRequest(req *http.Request) (response *http.Response, err erro
 	if err != nil {
 		return nil, err
 	}
-
-	// check just in case we received 601 or 602
-	// retry, err := c.checkToken(response)
-	// if err != nil {
-	// 	return nil, err
-	// }
-	// if retry {
-	// 	response, err = c.do(req)
-	// }
 
 	return response, err
 }

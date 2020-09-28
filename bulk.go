@@ -14,6 +14,37 @@ import (
 	"strings"
 )
 
+type ImportObject struct {
+	create   string
+	status   string
+	failures string
+}
+
+var (
+	Leads = ImportObject{
+		create:   "leads",
+		status:   "leads/batch/%d",
+		failures: "leads/batch/%d/failures",
+	}
+	importObjects = map[string]ImportObject{
+		"lead": Leads,
+	}
+)
+
+// ImportObjectForAPIName returns the ImportObject given the API name
+// of a Marketo object
+func ImportObjectForAPIName(apiName string) ImportObject {
+	if obj, ok := importObjects[apiName]; ok {
+		return obj
+	}
+
+	return ImportObject{
+		create:   fmt.Sprintf("customobjects/%s/import", apiName),
+		status:   fmt.Sprintf("customobjects/%s/import/%%d/status", apiName),
+		failures: fmt.Sprintf("customobjects/%s/import/%%d/failures", apiName),
+	}
+}
+
 // BatchStatus describes the possible states for an import batch
 type BatchStatus string
 
@@ -42,8 +73,8 @@ type BatchResult struct {
 	Message        string `json:"message"`
 }
 
-// LeadImportResponse is returned from bulk lead import operations
-type LeadImportResponse struct {
+// CreateImportResponse is returned from bulk lead import operations
+type CreateImportResponse struct {
 	RequestID string        `json:"requestId"`
 	Success   bool          `json:"success"`
 	Result    []BatchResult `json:"result"`
@@ -62,12 +93,12 @@ func NewImportAPI(c *Client) *ImportAPI {
 
 // Create uploads a new file for importing, returning the new
 // asynchronous import
-func (i *ImportAPI) Create(ctx context.Context, file io.Reader) (*LeadImportResponse, error) {
+func (i *ImportAPI) Create(ctx context.Context, obj ImportObject, file io.Reader) (*CreateImportResponse, error) {
 	buffer := &strings.Builder{}
 	mpWriter := multipart.NewWriter(buffer)
 	h := make(textproto.MIMEHeader)
 	h.Set("Content-Disposition",
-		fmt.Sprintf(`form-data; name="file"; filename="%s"`, "lead.csv"))
+		fmt.Sprintf(`form-data; name="file"; filename="%s"`, "import.csv"))
 
 	fileWriter, err := mpWriter.CreatePart(h)
 	if err != nil {
@@ -79,7 +110,10 @@ func (i *ImportAPI) Create(ctx context.Context, file io.Reader) (*LeadImportResp
 	}
 
 	mpWriter.Close()
-	request, err := http.NewRequest(http.MethodPost, i.url("bulk", "v1", "leads.json?format=csv"), bytes.NewBufferString(buffer.String()))
+	request, err := http.NewRequest(http.MethodPost,
+		i.url("bulk", "v1", fmt.Sprintf("%s.json?format=csv", obj.create)),
+		bytes.NewBufferString(buffer.String()),
+	)
 	if err != nil {
 		return nil, err
 	}
@@ -99,7 +133,7 @@ func (i *ImportAPI) Create(ctx context.Context, file io.Reader) (*LeadImportResp
 		return nil, err
 	}
 
-	results := &LeadImportResponse{}
+	results := &CreateImportResponse{}
 	err = json.Unmarshal(body, results)
 	if err != nil {
 		return nil, err
@@ -109,9 +143,11 @@ func (i *ImportAPI) Create(ctx context.Context, file io.Reader) (*LeadImportResp
 }
 
 // Get retrieves an existing import by its batch ID
-func (i *ImportAPI) Get(ctx context.Context, id int) (*LeadImportResponse, error) {
+func (i *ImportAPI) Get(ctx context.Context, obj ImportObject, id int) (*CreateImportResponse, error) {
 	request, err := http.NewRequest(
-		http.MethodGet, i.url("bulk", "v1", "leads", "batch", fmt.Sprintf("%d.json", id)), nil,
+		http.MethodGet, i.url("bulk", "v1", fmt.Sprintf("%s.json",
+			fmt.Sprintf(obj.status, id),
+		)), nil,
 	)
 	if err != nil {
 		return nil, err
@@ -126,7 +162,7 @@ func (i *ImportAPI) Get(ctx context.Context, id int) (*LeadImportResponse, error
 		return nil, handleError(getLeadImport, resp)
 	}
 
-	result := &LeadImportResponse{}
+	result := &CreateImportResponse{}
 	reader := json.NewDecoder(resp.Body)
 	err = reader.Decode(result)
 	if err != nil {
@@ -144,9 +180,11 @@ type LeadImportFailure struct {
 }
 
 // Failures returns the list of failed recrods for an import
-func (i *ImportAPI) Failures(ctx context.Context, id int) ([]LeadImportFailure, error) {
+func (i *ImportAPI) Failures(ctx context.Context, obj ImportObject, id int) ([]LeadImportFailure, error) {
 	request, err := http.NewRequest(
-		http.MethodGet, i.url("bulk", "v1", "leads", "batch", fmt.Sprintf("%d", id), "failures.json"), nil,
+		http.MethodGet, i.url("bulk", "v1", fmt.Sprintf("%s.json",
+			fmt.Sprintf(obj.failures, id),
+		)), nil,
 	)
 	if err != nil {
 		return nil, err

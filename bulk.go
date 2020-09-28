@@ -49,7 +49,7 @@ type LeadImportResponse struct {
 	Result    []BatchResult `json:"result"`
 }
 
-// ImportAPI provides access to the HubSpot import API
+// ImportAPI provides access to the Marketo import API
 type ImportAPI struct {
 	*Client
 }

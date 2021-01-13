@@ -1,0 +1,72 @@
+{
+    "requestId": "ed9e#176fe5633e6",
+    "result": [
+        {
+            "name": "testObject_c",
+            "displayName": "Test Object",
+            "createdAt": "2020-09-28T19:40:11Z",
+            "updatedAt": "2020-09-28T19:40:11Z",
+            "idField": "marketoGUID",
+            "dedupeFields": [
+                "email"
+            ],
+            "searchableFields": [
+                [
+                    "email"
+                ],
+                [
+                    "marketoGUID"
+                ]
+            ],
+            "fields": [
+                {
+                    "name": "createdAt",
+                    "displayName": "Created At",
+                    "dataType": "datetime",
+                    "updateable": false,
+                    "crmManaged": false
+                },
+                {
+                    "name": "marketoGUID",
+                    "displayName": "Marketo GUID",
+                    "dataType": "string",
+                    "length": 36,
+                    "updateable": false,
+                    "crmManaged": false
+                },
+                {
+                    "name": "updatedAt",
+                    "displayName": "Updated At",
+                    "dataType": "datetime",
+                    "updateable": false,
+                    "crmManaged": false
+                },
+                {
+                    "name": "email",
+                    "displayName": "email",
+                    "dataType": "email",
+                    "length": 255,
+                    "updateable": true,
+                    "crmManaged": false
+                },
+                {
+                    "name": "firstName",
+                    "displayName": "First Name",
+                    "dataType": "string",
+                    "length": 255,
+                    "updateable": true,
+                    "crmManaged": false
+                },
+                {
+                    "name": "lastName",
+                    "displayName": "Last Name",
+                    "dataType": "string",
+                    "length": 255,
+                    "updateable": true,
+                    "crmManaged": false
+                }
+            ]
+        }
+    ],
+    "success": true
+}

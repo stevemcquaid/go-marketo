@@ -41,6 +41,8 @@ type ObjectField struct {
 	Name        string `json:"name"`
 	Updateable  bool   `json:"updateable"`
 	CRMManaged  bool   `json:"crmManaged"`
+
+	Searchable bool `json:"searchable,omitEmpty"`
 }
 
 type CustomObjectMetadata struct {
@@ -59,6 +61,11 @@ type CustomObjectMetadata struct {
 	Version          ObjectVersion    `json:"version"`
 }
 
+const (
+	describeCustomObject = "describe custom object"
+	listCustomObjects    = "list custom objects"
+)
+
 // CustomObjects provides access to the Marketo custom objects API
 type CustomObjects struct {
 	*Client
@@ -69,6 +76,7 @@ func NewCustomObjectsAPI(c *Client) *CustomObjects {
 	return &CustomObjects{c}
 }
 
+// List returns the custom objects supported by the Marketo instance
 func (c *CustomObjects) List(ctx context.Context) ([]CustomObjectMetadata, error) {
 	request, err := http.NewRequest(
 		http.MethodGet, c.url("rest", "v1", "customobjects.json"), nil,
@@ -83,7 +91,7 @@ func (c *CustomObjects) List(ctx context.Context) ([]CustomObjectMetadata, error
 	}
 	defer resp.Body.Close()
 	if resp.StatusCode != http.StatusOK {
-		return nil, handleError(getLeadImport, resp)
+		return nil, handleError(listCustomObjects, resp)
 	}
 
 	response := &Response{}
@@ -100,6 +108,7 @@ func (c *CustomObjects) List(ctx context.Context) ([]CustomObjectMetadata, error
 
 }
 
+// Describe returns the description for the provided custom object
 func (c *CustomObjects) Describe(ctx context.Context, name string) (*CustomObjectMetadata, error) {
 	request, err := http.NewRequest(
 		http.MethodGet, c.url("rest", "v1", "customobjects", name, "describe.json"), nil,
@@ -114,7 +123,7 @@ func (c *CustomObjects) Describe(ctx context.Context, name string) (*CustomObjec
 	}
 	defer resp.Body.Close()
 	if resp.StatusCode != http.StatusOK {
-		return nil, handleError(getLeadImport, resp)
+		return nil, handleError(describeCustomObject, resp)
 	}
 
 	response := &Response{}
@@ -130,6 +139,18 @@ func (c *CustomObjects) Describe(ctx context.Context, name string) (*CustomObjec
 	if len(object) == 0 {
 		return nil, errors.New("not found")
 	}
-	return &object[0], err
 
+	searchable := map[string]bool{}
+	for _, s := range object[0].SearchableFields {
+		for _, fld := range s {
+			searchable[fld] = true
+		}
+	}
+
+	for i, field := range object[0].Fields {
+		field.Searchable = searchable[field.Name]
+		object[0].Fields[i] = field
+	}
+
+	return &object[0], err
 }

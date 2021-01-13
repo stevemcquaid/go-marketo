@@ -1,0 +1,24 @@
+{
+    "requestId": "6827#176fe5681b6",
+    "result": [
+        {
+            "name": "testObject_c",
+            "displayName": "Test Object",
+            "createdAt": "2020-09-28T19:40:11Z",
+            "updatedAt": "2020-09-28T19:40:11Z",
+            "idField": "marketoGUID",
+            "dedupeFields": [
+                "email"
+            ],
+            "searchableFields": [
+                [
+                    "email"
+                ],
+                [
+                    "marketoGUID"
+                ]
+            ]
+        }
+    ],
+    "success": true
+}

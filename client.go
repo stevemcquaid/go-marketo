@@ -36,12 +36,12 @@ type Response struct {
 	NextPageToken string `json:"nextPageToken,omitempty"`
 	MoreResult    bool   `json:"moreResult,omitempty"`
 	Errors        []struct {
-		Code    string `json:"code"`
+		Code    int    `json:"code"`
 		Message string `json:"message"`
 	} `json:"errors,omitempty"`
 	Result   json.RawMessage `json:"result,omitempty"`
 	Warnings []struct {
-		Code    string `json:"code"`
+		Code    int    `json:"code"`
 		Message string `json:"message"`
 	} `json:"warning,omitempty"`
 }
@@ -275,17 +275,17 @@ func (c *Client) doRequest(req *http.Request) (response *http.Response, err erro
 }
 
 func (c *Client) checkToken(response *Response) (retry bool, err error) {
-	if len(response.Errors) > 0 && (response.Errors[0].Code == "601" || response.Errors[0].Code == "602") {
+	if len(response.Errors) > 0 && (response.Errors[0].Code == 601 || response.Errors[0].Code == 602) {
 		retry = true
 		if c.debug {
-			log.Printf("[marketo/checkToken] Expired/invalid token: %s", response.Errors[0].Code)
+			log.Printf("[marketo/checkToken] Expired/invalid token: %d", response.Errors[0].Code)
 		}
 		_, err = c.RefreshToken()
 	}
 	return retry, err
 }
 
-// Send HTTP GET to resource url
+// Get performs an HTTP GET for the specified resource url
 func (c *Client) Get(resource string) (response *Response, err error) {
 	if c.debug {
 		log.Printf("[marketo/Get] %s", resource)
@@ -300,7 +300,7 @@ func (c *Client) Get(resource string) (response *Response, err error) {
 	return c.doWithRetry(req)
 }
 
-// Send HTTP POST to resource url with given data
+// Post performs an HTTP POST to the specified resource url with given data
 func (c *Client) Post(resource string, data []byte) (response *Response, err error) {
 	if c.debug {
 		log.Printf("[marketo/Post] %s, %s", resource, string(data))
@@ -317,7 +317,7 @@ func (c *Client) Post(resource string, data []byte) (response *Response, err err
 	return c.doWithRetry(req)
 }
 
-// Send HTTP DELETE to resource url with given data
+// Delete sends an HTTP DELETE request to specified resource url with given data
 func (c *Client) Delete(resource string, data []byte) (response *Response, err error) {
 	if c.debug {
 		log.Printf("[marketo/Delete] %s, %s", resource, string(data))

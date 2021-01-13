@@ -34,12 +34,12 @@ const (
 	tokenExpiredResponse = `{
 		"requestId":"1000",
 		"success":false,
-		"errors":[{"code":"602","message":"Access token expired"}]
+		"errors":[{"code":602,"message":"Access token expired"}]
 	}`
 	invalidTokenResponse = `{
 		"requestId":"1000",
 		"success":false,
-		"errors":[{"code":"601","message":"Access token invalid"}]
+		"errors":[{"code":601,"message":"Access token invalid"}]
 	}`
 )
 
@@ -143,7 +143,7 @@ func TestNewClientError(t *testing.T) {
 
 	_, err := NewClient(config)
 	if err != nil {
-		expectedError := fmt.Sprintf("Authentication error: 401 %s", authResponseError)
+		expectedError := fmt.Sprintf("authentication error: 401 %s", authResponseError)
 		if err.Error() != expectedError {
 			t.Errorf("Expected response:\n%s\n%s", expectedError, err)
 		}

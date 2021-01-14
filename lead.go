@@ -5,16 +5,21 @@ import (
 	"encoding/json"
 	"errors"
 	"net/http"
+	"strings"
+
+	"github.com/mitchellh/mapstructure"
 )
 
 // LeadResult default result struct
 type LeadResult struct {
-	ID        int    `json:"id"`
-	FirstName string `json:"firstName"`
-	LastName  string `json:"lastName"`
-	Email     string `json:"email"`
-	Created   string `json:"createdAt"`
-	Updated   string `json:"updatedAt"`
+	ID        int    `json:"id" mapstructure:"id"`
+	FirstName string `json:"firstName" mapstructure:"firstName"`
+	LastName  string `json:"lastName" mapstructure:"lastName"`
+	Email     string `json:"email" mapstructure:"email"`
+	Created   string `json:"createdAt" mapstructure:"createdAt"`
+	Updated   string `json:"updatedAt" mapstructure:"updatedAt"`
+
+	Fields map[string]string `json:"-" mapstructure:",remain"`
 }
 
 // LeadAttributeMap defines the name & readonly state of a Lead Attribute
@@ -56,6 +61,7 @@ type leadDescribe2Response struct {
 
 const (
 	describeLead2 = "describe2 lead"
+	filterLeads   = "filter leads"
 )
 
 // LeadAPI provides access to the Marketo Lead API
@@ -113,4 +119,58 @@ func (l *LeadAPI) DescribeFields(ctx context.Context) ([]LeadAttribute2, error) 
 		object[0].Fields[i] = field
 	}
 	return object[0].Fields, err
+}
+
+// Filter queries Marketo for one or more Leads, returning them if present
+func (l *LeadAPI) Filter(ctx context.Context, opts ...QueryOption) ([]LeadResult, string, error) {
+	q := &Query{}
+	for _, opt := range opts {
+		opt(q)
+	}
+
+	query, err := q.Values()
+	if err != nil {
+		return nil, "", err
+	}
+	request, err := http.NewRequest(
+		http.MethodPost,
+		l.c.url("rest", "v1", "leads.json?_method=GET"),
+		strings.NewReader(query.Encode()),
+	)
+	request.Header.Add("Content-Type", "application/x-www-form-urlencoded")
+	if err != nil {
+		return nil, "", err
+	}
+
+	resp, err := l.c.doRequest(request)
+	if err != nil {
+		return nil, "", err
+	}
+	defer resp.Body.Close()
+	if resp.StatusCode != http.StatusOK {
+		return nil, "", handleError(filterLeads, resp)
+	}
+
+	response := &Response{}
+	reader := json.NewDecoder(resp.Body)
+	err = reader.Decode(response)
+	if err != nil {
+		return nil, "", err
+	}
+
+	raw := []map[string]interface{}{}
+	err = json.Unmarshal(response.Result, &raw)
+	if err != nil {
+		return nil, "", err
+	}
+
+	leads := make([]LeadResult, len(raw))
+	for i, l := range raw {
+		err = mapstructure.Decode(l, &leads[i])
+		if err != nil {
+			return nil, "", err
+		}
+	}
+
+	return leads, response.NextPageToken, nil
 }

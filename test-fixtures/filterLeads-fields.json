@@ -1,0 +1,20 @@
+{
+    "requestId": "361b#1770247112b",
+    "result": [
+        {
+            "id": 1000048,
+            "department": null,
+            "company": "Polytomic",
+            "firstName": "Ghalib",
+            "email": "ghalib@polytomic.com"
+        },
+        {
+            "id": 1000049,
+            "department": null,
+            "company": "Polytomic",
+            "firstName": "Nathan",
+            "email": "nathan@polytomic.com"
+        }
+    ],
+    "success": true
+}

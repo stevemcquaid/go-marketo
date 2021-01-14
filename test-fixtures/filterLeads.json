@@ -1,0 +1,22 @@
+{
+  "requestId": "1771c#176fe6daa75",
+  "result": [
+    {
+      "id": 1000048,
+      "firstName": "Ghalib",
+      "lastName": "Suleiman",
+      "email": "ghalib@polytomic.com",
+      "updatedAt": "2021-01-13T00:01:59Z",
+      "createdAt": "2021-01-13T00:01:58Z"
+    },
+    {
+      "id": 1000049,
+      "firstName": "Nathan",
+      "lastName": "Yergler",
+      "email": "nathan@polytomic.com",
+      "updatedAt": "2021-01-13T00:01:59Z",
+      "createdAt": "2021-01-13T00:01:58Z"
+    }
+  ],
+  "success": true
+}

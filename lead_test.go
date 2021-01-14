@@ -48,3 +48,81 @@ func TestLeadDescribe(t *testing.T) {
 
 	assert.True(t, gock.IsDone())
 }
+
+func TestFilterLeads(t *testing.T) {
+	defer gock.Off()
+
+	gock.New(testHost).
+		Get("/identity/oauth/token").
+		Reply(http.StatusOK).
+		JSON(authResponseSuccess)
+	gock.New(testHost).
+		Post("/rest/v1/leads.json").
+		AddMatcher(func(r *http.Request, tr *gock.Request) (bool, error) {
+			require.NoError(t, r.ParseForm())
+			assert.Equal(t, "email", r.PostForm.Get("filterType"))
+			return true, nil
+		}).
+		Reply(http.StatusOK).
+		File("test-fixtures/filterLeads.json")
+
+	client, err := NewClient(ClientConfig{
+		ID:       clientID,
+		Secret:   clientSecret,
+		Endpoint: "https://marketo.testing",
+		Debug:    true,
+	})
+	require.NoError(t, err)
+
+	api := NewLeadAPI(client)
+	leads, _, err := api.Filter(
+		context.Background(),
+		FilterField("email"),
+		FilterValues([]string{"nathan@polytomic.com", "ghalib@polytomic.com"}),
+	)
+	require.NoError(t, err)
+
+	assert.Len(t, leads, 2)
+	assert.True(t, gock.IsDone())
+}
+
+func TestFilterLeads_withFields(t *testing.T) {
+	defer gock.Off()
+
+	gock.New(testHost).
+		Get("/identity/oauth/token").
+		Reply(http.StatusOK).
+		JSON(authResponseSuccess)
+	gock.New(testHost).
+		Post("/rest/v1/leads.json").
+		AddMatcher(func(r *http.Request, tr *gock.Request) (bool, error) {
+			require.NoError(t, r.ParseForm())
+			assert.Equal(t, "email", r.PostForm.Get("filterType"))
+			assert.Equal(t, "department,company,firstName", r.PostForm.Get("fields"))
+			return true, nil
+		}).
+		Reply(http.StatusOK).
+		File("test-fixtures/filterLeads-fields.json")
+
+	client, err := NewClient(ClientConfig{
+		ID:       clientID,
+		Secret:   clientSecret,
+		Endpoint: "https://marketo.testing",
+		Debug:    true,
+	})
+	require.NoError(t, err)
+
+	api := NewLeadAPI(client)
+	leads, _, err := api.Filter(
+		context.Background(),
+		FilterField("email"),
+		FilterValues([]string{"nathan@polytomic.com", "ghalib@polytomic.com"}),
+		GetFields("department", "company", "firstName"),
+	)
+	require.NoError(t, err)
+
+	require.Len(t, leads, 2)
+	assert.Equal(t, "Polytomic", leads[0].Fields["company"])
+
+	assert.True(t, gock.IsDone())
+}

@@ -1,0 +1,708 @@
+{
+  "requestId": "1584e#176fde56c46",
+  "result": [
+    {
+      "name": "API Lead",
+      "searchableFields": [
+        ["cookies"],
+        ["department"],
+        ["email"],
+        ["emailSuspendedCause"],
+        ["externalCompanyId"],
+        ["externalSalesPersonId"],
+        ["id"],
+        ["leadPartitionId"],
+        ["mktoName"]
+      ],
+      "fields": [
+        {
+          "name": "acquisitionProgramId",
+          "displayName": "Acquisition Program",
+          "dataType": "reference",
+          "updateable": true,
+          "crmManaged": false
+        },
+        {
+          "name": "address",
+          "displayName": "Address",
+          "dataType": "text",
+          "updateable": true,
+          "crmManaged": false
+        },
+        {
+          "name": "annualRevenue",
+          "displayName": "Annual Revenue",
+          "dataType": "currency",
+          "updateable": true,
+          "crmManaged": false
+        },
+        {
+          "name": "anonymousIP",
+          "displayName": "Anonymous IP",
+          "dataType": "string",
+          "length": 255,
+          "updateable": true,
+          "crmManaged": false
+        },
+        {
+          "name": "billingCity",
+          "displayName": "Billing City",
+          "dataType": "string",
+          "length": 255,
+          "updateable": true,
+          "crmManaged": false
+        },
+        {
+          "name": "billingCountry",
+          "displayName": "Billing Country",
+          "dataType": "string",
+          "length": 255,
+          "updateable": true,
+          "crmManaged": false
+        },
+        {
+          "name": "billingPostalCode",
+          "displayName": "Billing Postal Code",
+          "dataType": "string",
+          "length": 255,
+          "updateable": true,
+          "crmManaged": false
+        },
+        {
+          "name": "billingState",
+          "displayName": "Billing State",
+          "dataType": "string",
+          "length": 255,
+          "updateable": true,
+          "crmManaged": false
+        },
+        {
+          "name": "billingStreet",
+          "displayName": "Billing Address",
+          "dataType": "text",
+          "updateable": true,
+          "crmManaged": false
+        },
+        {
+          "name": "blackListed",
+          "displayName": "Black Listed",
+          "dataType": "boolean",
+          "updateable": true,
+          "crmManaged": false
+        },
+        {
+          "name": "blackListedCause",
+          "displayName": "Black Listed Cause",
+          "dataType": "string",
+          "length": 255,
+          "updateable": true,
+          "crmManaged": false
+        },
+        {
+          "name": "city",
+          "displayName": "City",
+          "dataType": "string",
+          "length": 255,
+          "updateable": true,
+          "crmManaged": false
+        },
+        {
+          "name": "company",
+          "displayName": "Company Name",
+          "dataType": "string",
+          "length": 255,
+          "updateable": true,
+          "crmManaged": false
+        },
+        {
+          "name": "contactCompany",
+          "displayName": "Contact Company",
+          "dataType": "reference",
+          "updateable": false,
+          "crmManaged": false
+        },
+        {
+          "name": "cookies",
+          "displayName": "Cookies",
+          "dataType": "string",
+          "length": 255,
+          "updateable": true,
+          "crmManaged": false
+        },
+        {
+          "name": "country",
+          "displayName": "Country",
+          "dataType": "string",
+          "length": 255,
+          "updateable": true,
+          "crmManaged": false
+        },
+        {
+          "name": "createdAt",
+          "displayName": "Created At",
+          "dataType": "datetime",
+          "updateable": false,
+          "crmManaged": false
+        },
+        {
+          "name": "dateOfBirth",
+          "displayName": "Date of Birth",
+          "dataType": "date",
+          "updateable": true,
+          "crmManaged": false
+        },
+        {
+          "name": "department",
+          "displayName": "Department",
+          "dataType": "string",
+          "length": 255,
+          "updateable": true,
+          "crmManaged": false
+        },
+        {
+          "name": "doNotCall",
+          "displayName": "Do Not Call",
+          "dataType": "boolean",
+          "updateable": true,
+          "crmManaged": false
+        },
+        {
+          "name": "doNotCallReason",
+          "displayName": "Do Not Call Reason",
+          "dataType": "string",
+          "length": 2000,
+          "updateable": true,
+          "crmManaged": false
+        },
+        {
+          "name": "email",
+          "displayName": "Email Address",
+          "dataType": "email",
+          "length": 255,
+          "updateable": true,
+          "crmManaged": false
+        },
+        {
+          "name": "emailInvalid",
+          "displayName": "Email Invalid",
+          "dataType": "boolean",
+          "updateable": true,
+          "crmManaged": false
+        },
+        {
+          "name": "emailInvalidCause",
+          "displayName": "Email Invalid Cause",
+          "dataType": "string",
+          "length": 255,
+          "updateable": true,
+          "crmManaged": false
+        },
+        {
+          "name": "emailSuspended",
+          "displayName": "Email Suspended",
+          "dataType": "boolean",
+          "updateable": true,
+          "crmManaged": false
+        },
+        {
+          "name": "emailSuspendedAt",
+          "displayName": "Email Suspended At",
+          "dataType": "datetime",
+          "updateable": true,
+          "crmManaged": false
+        },
+        {
+          "name": "emailSuspendedCause",
+          "displayName": "Email Suspended Cause",
+          "dataType": "string",
+          "length": 255,
+          "updateable": true,
+          "crmManaged": false
+        },
+        {
+          "name": "externalCompanyId",
+          "displayName": "External Company Id",
+          "dataType": "string",
+          "length": 50,
+          "updateable": true,
+          "crmManaged": false
+        },
+        {
+          "name": "externalSalesPersonId",
+          "displayName": "External Sales Person Id",
+          "dataType": "string",
+          "length": 50,
+          "updateable": true,
+          "crmManaged": false
+        },
+        {
+          "name": "fax",
+          "displayName": "Fax Number",
+          "dataType": "phone",
+          "length": 255,
+          "updateable": true,
+          "crmManaged": false
+        },
+        {
+          "name": "firstName",
+          "displayName": "First Name",
+          "dataType": "string",
+          "length": 255,
+          "updateable": true,
+          "crmManaged": false
+        },
+        {
+          "name": "id",
+          "displayName": "Id",
+          "dataType": "integer",
+          "updateable": true,
+          "crmManaged": false
+        },
+        {
+          "name": "industry",
+          "displayName": "Industry",
+          "dataType": "string",
+          "length": 255,
+          "updateable": true,
+          "crmManaged": false
+        },
+        {
+          "name": "inferredCity",
+          "displayName": "Inferred City",
+          "dataType": "string",
+          "length": 255,
+          "updateable": false,
+          "crmManaged": false
+        },
+        {
+          "name": "inferredCompany",
+          "displayName": "Inferred Company",
+          "dataType": "string",
+          "length": 255,
+          "updateable": false,
+          "crmManaged": false
+        },
+        {
+          "name": "inferredCountry",
+          "displayName": "Inferred Country",
+          "dataType": "string",
+          "length": 255,
+          "updateable": false,
+          "crmManaged": false
+        },
+        {
+          "name": "inferredMetropolitanArea",
+          "displayName": "Inferred Metropolitan Area",
+          "dataType": "string",
+          "length": 255,
+          "updateable": false,
+          "crmManaged": false
+        },
+        {
+          "name": "inferredPhoneAreaCode",
+          "displayName": "Inferred Phone Area Code",
+          "dataType": "string",
+          "length": 255,
+          "updateable": false,
+          "crmManaged": false
+        },
+        {
+          "name": "inferredPostalCode",
+          "displayName": "Inferred Postal Code",
+          "dataType": "string",
+          "length": 255,
+          "updateable": false,
+          "crmManaged": false
+        },
+        {
+          "name": "inferredStateRegion",
+          "displayName": "Inferred State Region",
+          "dataType": "string",
+          "length": 255,
+          "updateable": false,
+          "crmManaged": false
+        },
+        {
+          "name": "isAnonymous",
+          "displayName": "Is Anonymous",
+          "dataType": "boolean",
+          "updateable": true,
+          "crmManaged": false
+        },
+        {
+          "name": "isLead",
+          "displayName": "Is Lead",
+          "dataType": "boolean",
+          "updateable": true,
+          "crmManaged": false
+        },
+        {
+          "name": "lastName",
+          "displayName": "Last Name",
+          "dataType": "string",
+          "length": 255,
+          "updateable": true,
+          "crmManaged": false
+        },
+        {
+          "name": "leadPartitionId",
+          "displayName": "Lead Partition Id",
+          "dataType": "reference",
+          "updateable": true,
+          "crmManaged": false
+        },
+        {
+          "name": "leadPerson",
+          "displayName": "Lead Person",
+          "dataType": "reference",
+          "updateable": false,
+          "crmManaged": false
+        },
+        {
+          "name": "leadRevenueCycleModelId",
+          "displayName": "Lead Revenue Cycle Model ID",
+          "dataType": "reference",
+          "updateable": true,
+          "crmManaged": false
+        },
+        {
+          "name": "leadRevenueStageId",
+          "displayName": "Lead Revenue Stage ID",
+          "dataType": "reference",
+          "updateable": true,
+          "crmManaged": false
+        },
+        {
+          "name": "leadRole",
+          "displayName": "Role",
+          "dataType": "string",
+          "length": 50,
+          "updateable": true,
+          "crmManaged": false
+        },
+        {
+          "name": "leadScore",
+          "displayName": "Lead Score",
+          "dataType": "integer",
+          "updateable": true,
+          "crmManaged": false
+        },
+        {
+          "name": "leadSource",
+          "displayName": "Lead Source",
+          "dataType": "string",
+          "length": 255,
+          "updateable": true,
+          "crmManaged": false
+        },
+        {
+          "name": "leadStatus",
+          "displayName": "Lead Status",
+          "dataType": "string",
+          "length": 255,
+          "updateable": true,
+          "crmManaged": false
+        },
+        {
+          "name": "mainPhone",
+          "displayName": "Main Phone",
+          "dataType": "string",
+          "length": 255,
+          "updateable": true,
+          "crmManaged": false
+        },
+        {
+          "name": "marketingSuspended",
+          "displayName": "Marketing Suspended",
+          "dataType": "boolean",
+          "updateable": true,
+          "crmManaged": false
+        },
+        {
+          "name": "marketingSuspendedCause",
+          "displayName": "Marketing Suspended Cause",
+          "dataType": "string",
+          "length": 255,
+          "updateable": true,
+          "crmManaged": false
+        },
+        {
+          "name": "middleName",
+          "displayName": "Middle Name",
+          "dataType": "string",
+          "length": 255,
+          "updateable": true,
+          "crmManaged": false
+        },
+        {
+          "name": "mktoAcquisitionDate",
+          "displayName": "Acquisition Date",
+          "dataType": "datetime",
+          "updateable": true,
+          "crmManaged": false
+        },
+        {
+          "name": "mktoCompanyNotes",
+          "displayName": "Company Notes",
+          "dataType": "text",
+          "updateable": true,
+          "crmManaged": false
+        },
+        {
+          "name": "mktoDoNotCallCause",
+          "displayName": "Do Not Call Cause",
+          "dataType": "string",
+          "length": 255,
+          "updateable": true,
+          "crmManaged": false
+        },
+        {
+          "name": "mktoIsCustomer",
+          "displayName": "Is Customer",
+          "dataType": "boolean",
+          "updateable": true,
+          "crmManaged": false
+        },
+        {
+          "name": "mktoIsPartner",
+          "displayName": "Is Partner",
+          "dataType": "boolean",
+          "updateable": true,
+          "crmManaged": false
+        },
+        {
+          "name": "mktoName",
+          "displayName": "Full Name",
+          "dataType": "string",
+          "length": 255,
+          "updateable": false,
+          "crmManaged": false
+        },
+        {
+          "name": "mktoPersonNotes",
+          "displayName": "Person Notes",
+          "dataType": "text",
+          "updateable": true,
+          "crmManaged": false
+        },
+        {
+          "name": "mobilePhone",
+          "displayName": "Mobile Phone Number",
+          "dataType": "phone",
+          "length": 255,
+          "updateable": true,
+          "crmManaged": false
+        },
+        {
+          "name": "numberOfEmployees",
+          "displayName": "Num Employees",
+          "dataType": "integer",
+          "updateable": true,
+          "crmManaged": false
+        },
+        {
+          "name": "originalReferrer",
+          "displayName": "Original Referrer",
+          "dataType": "url",
+          "length": 255,
+          "updateable": false,
+          "crmManaged": false
+        },
+        {
+          "name": "originalSearchEngine",
+          "displayName": "Original Search Engine",
+          "dataType": "string",
+          "length": 255,
+          "updateable": false,
+          "crmManaged": false
+        },
+        {
+          "name": "originalSearchPhrase",
+          "displayName": "Original Search Phrase",
+          "dataType": "string",
+          "length": 255,
+          "updateable": false,
+          "crmManaged": false
+        },
+        {
+          "name": "originalSourceInfo",
+          "displayName": "Original Source Info",
+          "dataType": "string",
+          "length": 2000,
+          "updateable": false,
+          "crmManaged": false
+        },
+        {
+          "name": "originalSourceType",
+          "displayName": "Original Source Type",
+          "dataType": "string",
+          "length": 255,
+          "updateable": false,
+          "crmManaged": false
+        },
+        {
+          "name": "personPrimaryLeadInterest",
+          "displayName": "Primary Lead Interest",
+          "dataType": "reference",
+          "updateable": false,
+          "crmManaged": false
+        },
+        {
+          "name": "personTimeZone",
+          "displayName": "Person Time Zone",
+          "dataType": "string",
+          "length": 255,
+          "updateable": false,
+          "crmManaged": false
+        },
+        {
+          "name": "personType",
+          "displayName": "Person Type",
+          "dataType": "string",
+          "length": 50,
+          "updateable": true,
+          "crmManaged": false
+        },
+        {
+          "name": "phone",
+          "displayName": "Phone Number",
+          "dataType": "phone",
+          "length": 255,
+          "updateable": true,
+          "crmManaged": false
+        },
+        {
+          "name": "postalCode",
+          "displayName": "Postal Code",
+          "dataType": "string",
+          "length": 255,
+          "updateable": true,
+          "crmManaged": false
+        },
+        {
+          "name": "priority",
+          "displayName": "Priority",
+          "dataType": "integer",
+          "updateable": true,
+          "crmManaged": false
+        },
+        {
+          "name": "rating",
+          "displayName": "Lead Rating",
+          "dataType": "string",
+          "length": 255,
+          "updateable": true,
+          "crmManaged": false
+        },
+        {
+          "name": "registrationSourceInfo",
+          "displayName": "Registration Source Info",
+          "dataType": "string",
+          "length": 2000,
+          "updateable": true,
+          "crmManaged": false
+        },
+        {
+          "name": "registrationSourceType",
+          "displayName": "Registration Source Type",
+          "dataType": "string",
+          "length": 255,
+          "updateable": true,
+          "crmManaged": false
+        },
+        {
+          "name": "relativeScore",
+          "displayName": "Relative Score",
+          "dataType": "integer",
+          "updateable": true,
+          "crmManaged": false
+        },
+        {
+          "name": "relativeUrgency",
+          "displayName": "Relative Urgency",
+          "dataType": "integer",
+          "updateable": true,
+          "crmManaged": false
+        },
+        {
+          "name": "salutation",
+          "displayName": "Salutation",
+          "dataType": "string",
+          "length": 255,
+          "updateable": true,
+          "crmManaged": false
+        },
+        {
+          "name": "sicCode",
+          "displayName": "SIC Code",
+          "dataType": "string",
+          "length": 40,
+          "updateable": true,
+          "crmManaged": false
+        },
+        {
+          "name": "site",
+          "displayName": "Site",
+          "dataType": "string",
+          "length": 255,
+          "updateable": true,
+          "crmManaged": false
+        },
+        {
+          "name": "state",
+          "displayName": "State",
+          "dataType": "string",
+          "length": 255,
+          "updateable": true,
+          "crmManaged": false
+        },
+        {
+          "name": "title",
+          "displayName": "Job Title",
+          "dataType": "string",
+          "length": 255,
+          "updateable": true,
+          "crmManaged": false
+        },
+        {
+          "name": "unsubscribed",
+          "displayName": "Unsubscribed",
+          "dataType": "boolean",
+          "updateable": true,
+          "crmManaged": false
+        },
+        {
+          "name": "unsubscribedReason",
+          "displayName": "Unsubscribed Reason",
+          "dataType": "string",
+          "length": 2000,
+          "updateable": true,
+          "crmManaged": false
+        },
+        {
+          "name": "updatedAt",
+          "displayName": "Updated At",
+          "dataType": "datetime",
+          "updateable": false,
+          "crmManaged": false
+        },
+        {
+          "name": "urgency",
+          "displayName": "Urgency",
+          "dataType": "float",
+          "updateable": true,
+          "crmManaged": false
+        },
+        {
+          "name": "website",
+          "displayName": "Website",
+          "dataType": "url",
+          "length": 255,
+          "updateable": true,
+          "crmManaged": false
+        }
+      ]
+    }
+  ],
+  "success": true
+}

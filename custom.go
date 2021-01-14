@@ -4,8 +4,12 @@ import (
 	"context"
 	"encoding/json"
 	"errors"
+	"fmt"
 	"net/http"
+	"strings"
 	"time"
+
+	"github.com/mitchellh/mapstructure"
 )
 
 type ObjectState string
@@ -59,6 +63,14 @@ type CustomObjectMetadata struct {
 	UpdatedAt        time.Time        `json:"updatedAt"`
 	State            ObjectState      `json:"state"`
 	Version          ObjectVersion    `json:"version"`
+}
+
+// CustomObjectResult contains a single record returned when filtering custom
+// objects.
+type CustomObjectResult struct {
+	MarketoGUID string                 `json:"marketoGUID"`
+	Sequence    int                    `json:"seq"`
+	Fields      map[string]interface{} `json:"-" mapstructure:",remain"`
 }
 
 const (
@@ -153,4 +165,58 @@ func (c *CustomObjects) Describe(ctx context.Context, name string) (*CustomObjec
 	}
 
 	return &object[0], err
+}
+
+// Filter queries Marketo for custom objects that match the provided filters.
+func (c *CustomObjects) Filter(ctx context.Context, name string, opts ...QueryOption) ([]CustomObjectResult, string, error) {
+	q := &Query{}
+	for _, opt := range opts {
+		opt(q)
+	}
+
+	query, err := q.Values()
+	if err != nil {
+		return nil, "", err
+	}
+	request, err := http.NewRequest(
+		http.MethodPost,
+		c.url("rest", "v1", "customobjects", fmt.Sprintf("%s.json?_method=GET", name)),
+		strings.NewReader(query.Encode()),
+	)
+	request.Header.Add("Content-Type", "application/x-www-form-urlencoded")
+	if err != nil {
+		return nil, "", err
+	}
+
+	resp, err := c.doRequest(request)
+	if err != nil {
+		return nil, "", err
+	}
+	defer resp.Body.Close()
+	if resp.StatusCode != http.StatusOK {
+		return nil, "", handleError(filterLeads, resp)
+	}
+
+	response := &Response{}
+	reader := json.NewDecoder(resp.Body)
+	err = reader.Decode(response)
+	if err != nil {
+		return nil, "", err
+	}
+
+	raw := []map[string]interface{}{}
+	err = json.Unmarshal(response.Result, &raw)
+	if err != nil {
+		return nil, "", err
+	}
+
+	results := make([]CustomObjectResult, len(raw))
+	for i, l := range raw {
+		err = mapstructure.Decode(l, &results[i])
+		if err != nil {
+			return nil, "", err
+		}
+	}
+
+	return results, response.NextPageToken, nil
 }

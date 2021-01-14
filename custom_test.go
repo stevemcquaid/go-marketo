@@ -112,3 +112,42 @@ func TestCustomObjectDescribe(t *testing.T) {
 		assert.True(t, gock.IsDone())
 	})
 }
+
+func TestFitlerCustomObjects(t *testing.T) {
+	defer gock.Off()
+
+	gock.New(testHost).
+		Get("/identity/oauth/token").
+		Reply(http.StatusOK).
+		JSON(authResponseSuccess)
+	gock.New(testHost).
+		Post("/rest/v1/customobjects/testObject_c.json").
+		AddMatcher(func(r *http.Request, tr *gock.Request) (bool, error) {
+			require.NoError(t, r.ParseForm())
+			assert.Equal(t, "email", r.PostForm.Get("filterType"))
+			return true, nil
+		}).
+		Reply(http.StatusOK).
+		File("test-fixtures/filterCustomObject.json")
+
+	client, err := NewClient(ClientConfig{
+		ID:       clientID,
+		Secret:   clientSecret,
+		Endpoint: "https://marketo.testing",
+		Debug:    true,
+	})
+	require.NoError(t, err)
+
+	api := NewCustomObjectsAPI(client)
+	leads, _, err := api.Filter(
+		context.Background(),
+		"testObject_c",
+		FilterField("email"),
+		FilterValues([]string{"nathan@polytomic.com", "ghalib@polytomic.com"}),
+	)
+	require.NoError(t, err)
+
+	require.Len(t, leads, 1)
+	assert.Equal(t, "nathan@polytomic.com", leads[0].Fields["email"])
+	assert.True(t, gock.IsDone())
+}

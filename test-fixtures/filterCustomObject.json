@@ -1,0 +1,13 @@
+{
+  "requestId": "1228c#1770278927e",
+  "result": [
+    {
+      "seq": 0,
+      "marketoGUID": "55ac5221-e29b-40ce-8bc8-fea5bc6069ef",
+      "createdAt": "2020-09-29T16:08:36Z",
+      "updatedAt": "2020-09-29T16:08:36Z",
+      "email": "nathan@polytomic.com"
+    }
+  ],
+  "success": true
+}

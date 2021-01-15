@@ -21,29 +21,20 @@ const (
 
 // RecordResult holds Marketo record-level result
 type RecordResult struct {
-	ID      int    `json:"id"`
-	Status  string `json:"status"`
-	Reasons []struct {
-		Code    string `json:"code"`
-		Message string `json:"message"`
-	} `json:"reasons,omitempty"`
+	ID      int      `json:"id"`
+	Status  string   `json:"status"`
+	Reasons []Reason `json:"reasons,omitempty"`
 }
 
 // Response is the common Marketo response which covers most of the Marketo response format
 type Response struct {
-	RequestID     string `json:"requestId"`
-	Success       bool   `json:"success"`
-	NextPageToken string `json:"nextPageToken,omitempty"`
-	MoreResult    bool   `json:"moreResult,omitempty"`
-	Errors        []struct {
-		Code    string `json:"code"`
-		Message string `json:"message"`
-	} `json:"errors,omitempty"`
-	Result   json.RawMessage `json:"result,omitempty"`
-	Warnings []struct {
-		Code    string `json:"code"`
-		Message string `json:"message"`
-	} `json:"warning,omitempty"`
+	RequestID     string          `json:"requestId"`
+	Success       bool            `json:"success"`
+	NextPageToken string          `json:"nextPageToken,omitempty"`
+	MoreResult    bool            `json:"moreResult,omitempty"`
+	Errors        []Reason        `json:"errors,omitempty"`
+	Result        json.RawMessage `json:"result,omitempty"`
+	Warnings      []Reason        `json:"warning,omitempty"`
 }
 
 // AuthToken holds data from Auth request

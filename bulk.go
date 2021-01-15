@@ -5,9 +5,9 @@ import (
 	"context"
 	"encoding/csv"
 	"encoding/json"
+	"errors"
 	"fmt"
 	"io"
-	"io/ioutil"
 	"mime/multipart"
 	"net/http"
 	"net/textproto"
@@ -45,9 +45,6 @@ func ImportObjectForAPIName(apiName string) ImportObject {
 	}
 }
 
-// BatchStatus describes the possible states for an import batch
-type BatchStatus string
-
 const (
 	BatchComplete  = "Complete"
 	BatchQueued    = "Queued"
@@ -56,9 +53,9 @@ const (
 )
 
 const (
-	createLeadImport      = "create lead import"
-	getLeadImport         = "get lead import"
-	getLeadImportFailures = "get lead import failures"
+	createImport      = "create bulk import"
+	getImport         = "get import status"
+	getImportFailures = "get import failures"
 )
 
 // BatchResult contains the details of a batch, returned by the Create
@@ -71,13 +68,6 @@ type BatchResult struct {
 	Failures       int    `json:"numOfRowsFailed"`
 	Warnings       int    `json:"numOfRowsWithWarning"`
 	Message        string `json:"message"`
-}
-
-// CreateImportResponse is returned from bulk lead import operations
-type CreateImportResponse struct {
-	RequestID string        `json:"requestId"`
-	Success   bool          `json:"success"`
-	Result    []BatchResult `json:"result"`
 }
 
 // ImportAPI provides access to the Marketo import API
@@ -93,7 +83,7 @@ func NewImportAPI(c *Client) *ImportAPI {
 
 // Create uploads a new file for importing, returning the new
 // asynchronous import
-func (i *ImportAPI) Create(ctx context.Context, obj ImportObject, file io.Reader) (*CreateImportResponse, error) {
+func (i *ImportAPI) Create(ctx context.Context, obj ImportObject, file io.Reader) ([]BatchResult, error) {
 	buffer := &strings.Builder{}
 	mpWriter := multipart.NewWriter(buffer)
 	h := make(textproto.MIMEHeader)
@@ -125,16 +115,21 @@ func (i *ImportAPI) Create(ctx context.Context, obj ImportObject, file io.Reader
 	}
 	defer resp.Body.Close()
 	if resp.StatusCode != http.StatusOK {
-		return nil, handleError(createLeadImport, resp)
+		return nil, handleError(createImport, resp)
 	}
 
-	body, err := ioutil.ReadAll(resp.Body)
+	response := &Response{}
+	reader := json.NewDecoder(resp.Body)
+	err = reader.Decode(response)
 	if err != nil {
 		return nil, err
 	}
+	if len(response.Errors) > 0 {
+		return nil, ErrorForReasons(resp.StatusCode, response.Errors...)
+	}
 
-	results := &CreateImportResponse{}
-	err = json.Unmarshal(body, results)
+	results := []BatchResult{}
+	err = json.Unmarshal(response.Result, &results)
 	if err != nil {
 		return nil, err
 	}
@@ -143,7 +138,7 @@ func (i *ImportAPI) Create(ctx context.Context, obj ImportObject, file io.Reader
 }
 
 // Get retrieves an existing import by its batch ID
-func (i *ImportAPI) Get(ctx context.Context, obj ImportObject, id int) (*CreateImportResponse, error) {
+func (i *ImportAPI) Get(ctx context.Context, obj ImportObject, id int) (*BatchResult, error) {
 	request, err := http.NewRequest(
 		http.MethodGet, i.url("bulk", "v1", fmt.Sprintf("%s.json",
 			fmt.Sprintf(obj.status, id),
@@ -159,17 +154,29 @@ func (i *ImportAPI) Get(ctx context.Context, obj ImportObject, id int) (*CreateI
 	}
 	defer resp.Body.Close()
 	if resp.StatusCode != http.StatusOK {
-		return nil, handleError(getLeadImport, resp)
+		return nil, handleError(getImport, resp)
 	}
 
-	result := &CreateImportResponse{}
+	response := &Response{}
 	reader := json.NewDecoder(resp.Body)
-	err = reader.Decode(result)
+	err = reader.Decode(response)
 	if err != nil {
 		return nil, err
 	}
+	if len(response.Errors) > 0 {
+		return nil, ErrorForReasons(resp.StatusCode, response.Errors...)
+	}
 
-	return result, nil
+	result := []BatchResult{}
+	err = json.Unmarshal(response.Result, &result)
+	if err != nil {
+		return nil, err
+	}
+	if len(result) < 1 {
+		return nil, errors.New("not found")
+	}
+
+	return &result[0], nil
 }
 
 // LeadImportFailure contains a single lead record failure, along with
@@ -200,7 +207,7 @@ func (i *ImportAPI) Failures(ctx context.Context, obj ImportObject, id int) ([]L
 		return nil, nil
 	}
 	if resp.StatusCode != http.StatusOK {
-		return nil, handleError(getLeadImportFailures, resp)
+		return nil, handleError(getImportFailures, resp)
 	}
 
 	reader := csv.NewReader(resp.Body)

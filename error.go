@@ -10,78 +10,93 @@ import (
 	"github.com/pkg/errors"
 )
 
-// ErrCode is the numeric error code returned by Marketo
-type ErrCode int
+// A Reason is provided along with errors, warnings, and some operations
+type Reason struct {
+	Code    string `json:"code"`
+	Message string `json:"message"`
+}
 
-const (
-	ErrCodeBadGateway                    = 502
-	ErrCodeEmptyAccessToken              = 600
-	ErrCodeAccessTokenInvalid            = 601
-	ErrCodeAccessTokenExpired            = 602
-	ErrCodeAccessDenied                  = 603
-	ErrCodeRequestTimeOut                = 604
-	ErrCodeMethodUnsupported             = 605
-	ErrCodeRateLimitExceeded             = 606
-	ErrCodeDailyQuotaReached             = 607
-	ErrCodeTemporarilyUnavailable        = 608
-	ErrCodeInvalidJSON                   = 609
-	ErrCodeNotFound                      = 610
-	ErrCodeSystemError                   = 611
-	ErrCodeInvalidContentType            = 612
-	ErrCodeInvalidMultipart              = 613
-	ErrCodeInvalidSubscription           = 614
-	ErrCodeConcurrentLimitReached        = 615
-	ErrCodeInvalidSubscriptionType       = 616
-	ErrCodeCannotBeBlank                 = 701
-	ErrCodeNoDataFound                   = 702
-	ErrCodeFeatureNotEnabled             = 703
-	ErrCodeInvalidDateFormat             = 704
-	ErrCodeBusinessRuleViolation         = 709
-	ErrCodeParentFolderNotFound          = 710
-	ErrCodeIncompatibleFolderType        = 711
-	ErrCodeMergeOperationInvalid         = 712
-	ErrCodeTransientError                = 713
-	ErrCodeUnableToFindDefaultRecordType = 714
-	ErrCodeExternalSalesPersonIDNotFound = 718
+func (r Reason) Error() string {
+	return fmt.Sprintf("%s: %s", r.Code, r.Message)
+}
+
+var (
+	ErrBadGateway                    = Reason{Code: "502"}
+	ErrEmptyAccessToken              = Reason{Code: "600"}
+	ErrAccessTokenInvalid            = Reason{Code: "601"}
+	ErrAccessTokenExpired            = Reason{Code: "602"}
+	ErrAccessDenied                  = Reason{Code: "603"}
+	ErrRequestTimeOut                = Reason{Code: "604"}
+	ErrMethodUnsupported             = Reason{Code: "605"}
+	ErrRateLimitExceeded             = Reason{Code: "606"}
+	ErrDailyQuotaReached             = Reason{Code: "607"}
+	ErrTemporarilyUnavailable        = Reason{Code: "608"}
+	ErrInvalidJSON                   = Reason{Code: "609"}
+	ErrNotFound                      = Reason{Code: "610"}
+	ErrSystemError                   = Reason{Code: "611"}
+	ErrInvalidContentType            = Reason{Code: "612"}
+	ErrInvalidMultipart              = Reason{Code: "613"}
+	ErrInvalidSubscription           = Reason{Code: "614"}
+	ErrConcurrentLimitReached        = Reason{Code: "615"}
+	ErrInvalidSubscriptionType       = Reason{Code: "616"}
+	ErrCannotBeBlank                 = Reason{Code: "701"}
+	ErrNoDataFound                   = Reason{Code: "702"}
+	ErrFeatureNotEnabled             = Reason{Code: "703"}
+	ErrInvalidDateFormat             = Reason{Code: "704"}
+	ErrBusinessRuleViolation         = Reason{Code: "709"}
+	ErrParentFolderNotFound          = Reason{Code: "710"}
+	ErrIncompatibleFolderType        = Reason{Code: "711"}
+	ErrMergeOperationInvalid         = Reason{Code: "712"}
+	ErrTransientError                = Reason{Code: "713"}
+	ErrUnableToFindDefaultRecordType = Reason{Code: "714"}
+	ErrExternalSalesPersonIDNotFound = Reason{Code: "718"}
+
+	ErrTooManyImports = Reason{Code: "1016"}
 )
-
-// ErrorResponse contains the payload of a Marketo error response. The
-// response itself may have 1 or more ResponseErrors with detailed
-// error information.
-//
-// See https://developers.marketo.com/rest-api/error-codes/ for
-// details on Marketo error types.
-type ErrorResponse struct {
-	RequestID string          `json:"requestId"`
-	Success   bool            `json:"success"`
-	Errors    []ResponseError `json:"errors,omitempty"`
-}
-
-// Error fulfills the error interface
-func (e ErrorResponse) Error() string {
-	msgs := make([]string, len(e.Errors))
-	for i, err := range e.Errors {
-		msgs[i] = err.Message
-	}
-	return strings.Join(msgs, "; ")
-}
-
-// ResponseError holds a single response-level error
-type ResponseError struct {
-	Code    ErrCode `json:"code"`
-	Message string  `json:"message"`
-}
 
 // Error contains the error state returned from a Marketo operation
 type Error struct {
 	Message    string
 	StatusCode int
 	Body       string
+
+	Errors []Reason
+}
+
+// ErrorForReasons returns a new Error wrapping the Reasons provided by the
+// Marketo API
+func ErrorForReasons(status int, reasons ...Reason) Error {
+	return Error{
+		StatusCode: status,
+		Errors:     reasons,
+	}
+}
+
+// Is provides support for the errors.Is() call, and will return true if the
+// passed target is a Reason and it matches any of the Reasons included with
+// this Error.
+func (e Error) Is(target error) bool {
+	if reason, ok := target.(Reason); ok {
+		for _, r := range e.Errors {
+			if r.Code == reason.Code {
+				return true
+			}
+		}
+	}
+	return false
 }
 
 // Error fulfills the error interface
 func (e Error) Error() string {
-	return e.Message
+	if e.Message != "" {
+		return e.Message
+	}
+
+	msgs := make([]string, len(e.Errors))
+	for i, err := range e.Errors {
+		msgs[i] = err.Message
+	}
+	return strings.Join(msgs, "; ")
 }
 
 // handleError reads a non-successful HTTP responnse & returns an
@@ -94,10 +109,10 @@ func handleError(operation string, resp *http.Response) error {
 	}
 
 	// attempt to deserialize the error response
-	mktoErr := ErrorResponse{}
-	err = json.Unmarshal(body, &mktoErr)
+	response := Response{}
+	err = json.Unmarshal(body, &response)
 	if err == nil {
-		return mktoErr
+		return ErrorForReasons(resp.StatusCode, response.Errors...)
 	}
 
 	return Error{

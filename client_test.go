@@ -34,12 +34,12 @@ const (
 	tokenExpiredResponse = `{
 		"requestId":"1000",
 		"success":false,
-		"errors":[{"code":602,"message":"Access token expired"}]
+		"errors":[{"code":"602","message":"Access token expired"}]
 	}`
 	invalidTokenResponse = `{
 		"requestId":"1000",
 		"success":false,
-		"errors":[{"code":601,"message":"Access token invalid"}]
+		"errors":[{"code":"601","message":"Access token invalid"}]
 	}`
 )
 

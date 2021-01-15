@@ -36,12 +36,12 @@ type Response struct {
 	NextPageToken string `json:"nextPageToken,omitempty"`
 	MoreResult    bool   `json:"moreResult,omitempty"`
 	Errors        []struct {
-		Code    int    `json:"code"`
+		Code    string `json:"code"`
 		Message string `json:"message"`
 	} `json:"errors,omitempty"`
 	Result   json.RawMessage `json:"result,omitempty"`
 	Warnings []struct {
-		Code    int    `json:"code"`
+		Code    string `json:"code"`
 		Message string `json:"message"`
 	} `json:"warning,omitempty"`
 }
@@ -275,10 +275,10 @@ func (c *Client) doRequest(req *http.Request) (response *http.Response, err erro
 }
 
 func (c *Client) checkToken(response *Response) (retry bool, err error) {
-	if len(response.Errors) > 0 && (response.Errors[0].Code == 601 || response.Errors[0].Code == 602) {
+	if len(response.Errors) > 0 && (response.Errors[0].Code == "601" || response.Errors[0].Code == "602") {
 		retry = true
 		if c.debug {
-			log.Printf("[marketo/checkToken] Expired/invalid token: %d", response.Errors[0].Code)
+			log.Printf("[marketo/checkToken] Expired/invalid token: %s", response.Errors[0].Code)
 		}
 		_, err = c.RefreshToken()
 	}

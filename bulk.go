@@ -61,13 +61,17 @@ const (
 // BatchResult contains the details of a batch, returned by the Create
 // & Get functions
 type BatchResult struct {
-	BatchID        int    `json:"batchId"`
-	ImportID       string `json:"importId"`
-	Status         string `json:"status"`
-	LeadsProcessed int    `json:"numOfLeadsProcessed"`
-	Failures       int    `json:"numOfRowsFailed"`
-	Warnings       int    `json:"numOfRowsWithWarning"`
-	Message        string `json:"message"`
+	BatchID          int    `json:"batchId"`
+	ImportID         string `json:"importId"`
+	Status           string `json:"status"`
+	LeadsProcessed   int    `json:"numOfLeadsProcessed,omitempty"`
+	Failures         int    `json:"numOfRowsFailed"`
+	Warnings         int    `json:"numOfRowsWithWarning"`
+	Message          string `json:"message"`
+	ObjectsProcessed int    `json:"numOfObjectsProcessed,omitempty"`
+	ObjectName       string `json:"objectApiName,omitempty"`
+
+	Processed int `json:"-"`
 }
 
 // ImportAPI provides access to the Marketo import API
@@ -176,6 +180,12 @@ func (i *ImportAPI) Get(ctx context.Context, obj ImportObject, id int) (*BatchRe
 		return nil, errors.New("not found")
 	}
 
+	for i, r := range result {
+		result[i].Processed = r.ObjectsProcessed
+		if r.LeadsProcessed > 0 {
+			result[i].Processed = r.LeadsProcessed
+		}
+	}
 	return &result[0], nil
 }
 

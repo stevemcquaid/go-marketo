@@ -36,6 +36,7 @@ type Response struct {
 	Errors        []Reason        `json:"errors,omitempty"`
 	Result        json.RawMessage `json:"result,omitempty"`
 	Warnings      []Reason        `json:"warning,omitempty"`
+	Raw          []byte
 }
 
 // AuthToken holds data from Auth request
@@ -217,8 +218,10 @@ func (c *Client) do(req *http.Request) (response *Response, err error) {
 		return nil, fmt.Errorf("No body! Check URL: %s", req.URL)
 	}
 
+	response.Raw = body
+	
 	if err = json.Unmarshal(body, &response); err != nil {
-		return nil, err
+		return response, err
 	}
 	return response, nil
 }

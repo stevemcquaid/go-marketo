@@ -218,12 +218,14 @@ func (c *Client) do(req *http.Request) (response *Response, err error) {
 		return nil, fmt.Errorf("No body! Check URL: %s", req.URL)
 	}
 
-	response.Raw = body
-	
-	if err = json.Unmarshal(body, &response); err != nil {
-		return response, err
+	err = json.Unmarshal(body, response)
+	if err != nil || response == nil {
+		response = &Response{
+			Raw: body,
+		}
 	}
-	return response, nil
+	
+	return response, err
 }
 
 func (c *Client) doWithRetry(req *http.Request) (response *Response, err error) {

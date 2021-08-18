@@ -274,7 +274,10 @@ func (c *Client) checkToken(response *Response) (retry bool, err error) {
 		}
 		_, err = c.RefreshToken()
 	}
-	return retry, errors.New("Invalid/Expired Marketo Auth Token")
+	if err != nil {
+		return retry, errors.New("Invalid/Expired Marketo Auth Token")
+	}
+	return retry, nil
 }
 
 // Get performs an HTTP GET for the specified resource url
